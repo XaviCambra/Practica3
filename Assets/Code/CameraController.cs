@@ -6,9 +6,10 @@ public class CameraController : MonoBehaviour
 {
     public Transform m_LookAtTransform;
     
-    public float m_Distance = 5.0f;
-    public float m_YawRotationalSpeed = 380.0f;
-    public float m_PitchRotationalSpeed = 180.0f;
+    public float m_MaxDistance = 15.0f;
+    public float m_MinDistance = 15.0f;
+    public float m_YawRotationalSpeed = 720.0f;
+    public float m_PitchRotationalSpeed = 360.0f;
 
     public float m_MinPitch = 30.0f;
     public float m_MaxPitch = 60.0f;
@@ -61,6 +62,8 @@ public class CameraController : MonoBehaviour
         }
 
         transform.LookAt(m_LookAtTransform.position);
+        float l_Distance = Vector3.Distance(transform.position, m_LookAtTransform.position);
+        l_Distance = Mathf.Clamp(l_Distance, m_MinDistance, m_MaxDistance);
         Vector3 l_EulerAgels = transform.rotation.eulerAngles;
         float l_Yaw = l_EulerAgels.y;
 
@@ -69,7 +72,7 @@ public class CameraController : MonoBehaviour
         m_Pitch = Mathf.Clamp(m_Pitch, m_MinPitch, m_MaxPitch);
 
         Vector3 l_ForwardCamera = new Vector3(Mathf.Sin(l_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad), Mathf.Sin(m_Pitch * Mathf.Deg2Rad), Mathf.Cos(l_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad));
-        transform.position = m_LookAtTransform.position - l_ForwardCamera * m_Distance;
+        transform.position = m_LookAtTransform.position - l_ForwardCamera * l_Distance;
         transform.LookAt(m_LookAtTransform.position);
     }
 }
