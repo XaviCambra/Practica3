@@ -73,6 +73,9 @@ public class MarioPlayerController : MonoBehaviour
                 l_MovementSpeed = m_RunSpeed;
             }
         }
+
+        l_Movement = l_Movement * l_MovementSpeed * Time.deltaTime;
+
         m_Animator.SetFloat("Speed", l_Speed);
         if (Input.GetKeyDown(KeyCode.Space))
         {
