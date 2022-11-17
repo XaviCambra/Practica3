@@ -16,25 +16,39 @@ public class CameraController : MonoBehaviour
 
     [Header("Debug")]
     public KeyCode m_DebugLockAngleKeyCode = KeyCode.I;
-    public KeyCode
+    public KeyCode m_DebugLockKeyCode = KeyCode.O;
+    bool m_AngleLocked = false;
+    bool m_AimLocked = true;
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        //m_MouseLocked = Cursor.lockState == CursorLockMode.Locked;
-        //poner aqui lo de bloquear cursor y sus cosas
+        m_AimLocked = Cursor.lockState == CursorLockMode.Locked;
     }
 
+    #if UNITY_EDITOR
     void UpdateInputDebug()
     {
-        //if(Inpu)
-        //lo de bloqear el cursor again
+        if (Input.GetKeyDown(m_DebugLockAngleKeyCode))
+            m_AngleLocked = !m_AngleLocked;
+        if (Input.GetKeyDown(m_DebugLockKeyCode))
+        {
+            if (Cursor.lockState == CursorLockMode.Locked)
+                Cursor.lockState = CursorLockMode.None;
+            else
+                Cursor.lockState = CursorLockMode.Locked;
+            m_AimLocked = Cursor.lockState == CursorLockMode.Locked;
+        }
+
     }
+    #endif
 
     private void LateUpdate()
     {
-        //UpdateInputDebug();
-        
+        #if UNITY_EDITOR
+                UpdateInputDebug();
+        #endif
+
         float l_MouseX = Input.GetAxis("Mouse X");
         float l_MouseY = Input.GetAxis("Mouse Y");
 
