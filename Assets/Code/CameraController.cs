@@ -5,17 +5,22 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public Transform m_LookAtTransform;
-
-    public float m_MinDistance = 15.0f;
+    
     public float m_MaxDistance = 15.0f;
-    public float m_YawRotationalSpeed = 380.0f;
-    public float m_PitchRotationalSpeed = 180.0f;
+    public float m_MinDistance = 15.0f;
+    public float m_YawRotationalSpeed = 720.0f;
+    public float m_PitchRotationalSpeed = 360.0f;
 
     public float m_MinPitch = 30.0f;
     public float m_MaxPitch = 60.0f;
 
+
     float m_Pitch = 0.0f;
 
+
+    [Header("Avoid Objects")]
+    public LayerMask m_AvoidObjectsLayerMask;
+    public float m_AvoidObjectOffset = 0.1f;
 
     [Header("Debug")]
     public KeyCode m_DebugLockAngleKeyCode = KeyCode.I;
@@ -72,7 +77,16 @@ public class CameraController : MonoBehaviour
         m_Pitch = Mathf.Clamp(m_Pitch, m_MinPitch, m_MaxPitch);
 
         Vector3 l_ForwardCamera = new Vector3(Mathf.Sin(l_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad), Mathf.Sin(m_Pitch * Mathf.Deg2Rad), Mathf.Cos(l_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad));
-        transform.position = m_LookAtTransform.position - l_ForwardCamera * l_Distance;
+        Vector3 l_DesiredPosition = m_LookAtTransform.position - l_ForwardCamera * l_Distance;
+
+        Ray l_Ray = new Ray(m_LookAtTransform.position, -l_ForwardCamera);
+        RaycastHit l_RaycastHit;
+        if(Physics.Raycast(l_Ray, out l_RaycastHit, l_Distance, m_AvoidObjectsLayerMask.value))
+        {
+            l_DesiredPosition = l_RaycastHit.point + l_ForwardCamera * m_AvoidObjectOffset;
+        }
+        
+        transform.position = l_DesiredPosition;
         transform.LookAt(m_LookAtTransform.position);
     }
 }
