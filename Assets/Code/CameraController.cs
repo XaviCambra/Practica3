@@ -17,6 +17,11 @@ public class CameraController : MonoBehaviour
 
     float m_Pitch = 0.0f;
 
+
+    [Header("Avoid Objects")]
+    public LayerMask m_AvoidObjectsLayerMask;
+    public float m_AvoidObjectOffset = 0.1f;
+
     [Header("Debug")]
     public KeyCode m_DebugLockAngleKeyCode = KeyCode.I;
     public KeyCode m_DebugLockKeyCode = KeyCode.O;
@@ -72,7 +77,16 @@ public class CameraController : MonoBehaviour
         m_Pitch = Mathf.Clamp(m_Pitch, m_MinPitch, m_MaxPitch);
 
         Vector3 l_ForwardCamera = new Vector3(Mathf.Sin(l_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad), Mathf.Sin(m_Pitch * Mathf.Deg2Rad), Mathf.Cos(l_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad));
-        transform.position = m_LookAtTransform.position - l_ForwardCamera * l_Distance;
+        Vector3 l_DesiredPosition = m_LookAtTransform.position - l_ForwardCamera * l_Distance;
+
+        Ray l_Ray = new Ray(m_LookAtTransform.position, -l_ForwardCamera);
+        RaycastHit l_RaycastHit;
+        if(Physics.Raycast(l_Ray, out l_RaycastHit, l_Distance, m_AvoidObjectsLayerMask.value))
+        {
+            l_DesiredPosition = l_RaycastHit.point + l_ForwardCamera * m_AvoidObjectOffset;
+        }
+        
+        transform.position = l_DesiredPosition;
         transform.LookAt(m_LookAtTransform.position);
     }
 }
