@@ -5,17 +5,17 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public Transform m_LookAtTransform;
-    
-    public float m_MaxDistance = 15.0f;
+
     public float m_MinDistance = 15.0f;
-    public float m_YawRotationalSpeed = 720.0f;
-    public float m_PitchRotationalSpeed = 360.0f;
+    public float m_MaxDistance = 15.0f;
+    public float m_YawRotationalSpeed = 380.0f;
+    public float m_PitchRotationalSpeed = 180.0f;
 
     public float m_MinPitch = 30.0f;
     public float m_MaxPitch = 60.0f;
 
-
     float m_Pitch = 0.0f;
+
 
     [Header("Debug")]
     public KeyCode m_DebugLockAngleKeyCode = KeyCode.I;
