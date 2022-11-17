@@ -9,7 +9,13 @@ public class MarioPlayerController : MonoBehaviour
     public CameraController m_Camera;
     public float m_LerpRotationPct = 0.5f;
     public float m_WalkSpeed = 2.5f;
-   public float m_RunSpeed= 6.5f;
+    public float m_RunSpeed= 6.5f;
+
+    public KeyCode m_JumpKeyCode = KeyCode.Space;
+
+    public float m_VerticalSpeed = 0.0f;
+    public float m_JumpSpeed = 10.0f;
+    bool m_OnGround = true;
 
     private void Awake()
     {
@@ -55,6 +61,11 @@ public class MarioPlayerController : MonoBehaviour
             l_HasMovement = true;
             l_Movement += l_RightCamera;
         }
+        if (Input.GetKey(m_JumpKeyCode) && m_OnGround)
+        {
+            m_VerticalSpeed = m_JumpSpeed;
+
+        }
         l_Movement.Normalize();
 
         float l_MovementSpeed = 0.0f;
@@ -73,14 +84,33 @@ public class MarioPlayerController : MonoBehaviour
                 l_MovementSpeed = m_RunSpeed;
             }
         }
-
         l_Movement = l_Movement * l_MovementSpeed * Time.deltaTime;
 
+        m_VerticalSpeed = m_VerticalSpeed + Physics.gravity.y * Time.deltaTime;
+        l_Movement.y = m_VerticalSpeed * Time.deltaTime;
+
+        CollisionFlags l_CollisionFlags = m_CharacterController.Move(l_Movement);
+
+        if ((l_CollisionFlags & CollisionFlags.Above) != 0 && m_VerticalSpeed > 0.0f)
+        {
+            m_VerticalSpeed = 0.0f;
+        }
+        if ((l_CollisionFlags & CollisionFlags.Below) != 0)
+        {
+            m_VerticalSpeed = 0.0f;
+            m_OnGround = true;
+        }
+        else
+        {
+            m_OnGround = false;
+        }
+
+        //
+
         m_Animator.SetFloat("Speed", l_Speed);
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetMouseButtonDown(0))
         {
             m_Animator.SetTrigger("Punch");
         }
-        m_CharacterController.Move(l_Movement);
     }
 }
