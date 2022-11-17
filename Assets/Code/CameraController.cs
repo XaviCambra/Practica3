@@ -5,14 +5,16 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public Transform m_LookAtTransform;
-    float m_Yaw = 0.0f;
-    float m_Pitch = 0.0f;
+    
     public float m_Distance = 5.0f;
     public float m_YawRotationalSpeed = 380.0f;
     public float m_PitchRotationalSpeed = 180.0f;
 
     public float m_MinPitch = 30.0f;
     public float m_MaxPitch = 60.0f;
+
+
+    float m_Pitch = 0.0f;
 
     [Header("Debug")]
     public KeyCode m_DebugLockAngleKeyCode = KeyCode.I;
@@ -57,13 +59,16 @@ public class CameraController : MonoBehaviour
             l_MouseX = 0.0f;
             l_MouseY = 0.0f;
         }
-        
-        
-        m_Yaw += l_MouseX*m_YawRotationalSpeed*Time.deltaTime;
+
+        transform.LookAt(m_LookAtTransform.position);
+        Vector3 l_EulerAgels = transform.rotation.eulerAngles;
+        float l_Yaw = l_EulerAgels.y;
+
+        l_Yaw += l_MouseX*m_YawRotationalSpeed*Time.deltaTime;
         m_Pitch += l_MouseY * m_PitchRotationalSpeed * Time.deltaTime;
         m_Pitch = Mathf.Clamp(m_Pitch, m_MinPitch, m_MaxPitch);
 
-        Vector3 l_ForwardCamera = new Vector3(Mathf.Sin(m_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad), Mathf.Sin(m_Pitch * Mathf.Deg2Rad), Mathf.Cos(m_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad));
+        Vector3 l_ForwardCamera = new Vector3(Mathf.Sin(l_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad), Mathf.Sin(m_Pitch * Mathf.Deg2Rad), Mathf.Cos(l_Yaw * Mathf.Deg2Rad) * Mathf.Cos(m_Pitch * Mathf.Deg2Rad));
         transform.position = m_LookAtTransform.position - l_ForwardCamera * m_Distance;
         transform.LookAt(m_LookAtTransform.position);
     }
