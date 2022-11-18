@@ -9,7 +9,12 @@ public class MarioPlayerController : MonoBehaviour
     public CameraController m_Camera;
     public float m_LerpRotationPct = 0.5f;
     public float m_WalkSpeed = 2.5f;
-   public float m_RunSpeed= 6.5f;
+    public float m_RunSpeed= 6.5f;
+    public float m_Life = 8.0f;
+    public float m_Coins = 0.0f;
+
+    Vector3 m_StartPosition;
+    Quaternion m_StartRotation;
 
     private void Awake()
     {
@@ -19,7 +24,8 @@ public class MarioPlayerController : MonoBehaviour
 
     void Start()
     {
-        
+        m_StartPosition = transform.position;
+        m_StartRotation = transform.rotation;
     }
 
     void Update()
@@ -83,4 +89,47 @@ public class MarioPlayerController : MonoBehaviour
         }
         m_CharacterController.Move(l_Movement);
     }
+    public float GetLife()
+    {
+        return m_Life;
+    }
+    public void AddLife()
+    {
+        m_Life++;
+    }
+
+    public void AddCoin()
+    {
+        m_Coins++;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "healthItem")
+        {
+            other.GetComponent<Item>().Pick(this);
+        }
+        else if(other.tag == "coinItem")
+        {
+            other.GetComponent<Item>().Pick(this);
+        }
+        else if(other.tag == "deadZone")
+        {
+            Kill();
+        }
+    }
+    void Kill()
+    {
+        m_Life = 0.0f;
+        RestartGame();
+    }
+    public void RestartGame()
+    {
+        m_Life = 8.0f;
+        m_CharacterController.enabled = false;
+        transform.position = m_StartPosition;
+        transform.rotation = m_StartRotation;
+        m_CharacterController.enabled = true;
+    }
+
 }
