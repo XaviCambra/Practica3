@@ -132,4 +132,12 @@ public class MarioPlayerController : MonoBehaviour
         m_CharacterController.enabled = true;
     }
 
+    void Hit()
+    {
+        m_Life--;
+        if(m_Life <= 0)
+        {
+            RestartGame();
+        }
+    }
 }
