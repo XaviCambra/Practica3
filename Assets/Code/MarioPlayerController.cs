@@ -15,6 +15,9 @@ public class MarioPlayerController : MonoBehaviour
 
     Vector3 m_StartPosition;
     Quaternion m_StartRotation;
+    public float m_VerticalSpeed = 0.0f;
+    public float m_JumpSpeed = 10.0f;
+    bool m_OnGround = false;
 
     private void Awake()
     {
@@ -88,6 +91,25 @@ public class MarioPlayerController : MonoBehaviour
             m_Animator.SetTrigger("Punch");
         }
         m_CharacterController.Move(l_Movement);
+
+        m_VerticalSpeed = m_VerticalSpeed + Physics.gravity.y * Time.deltaTime;
+        l_Movement.y = m_VerticalSpeed * Time.deltaTime;
+
+        CollisionFlags l_CollisionFlags = m_CharacterController.Move(l_Movement);
+
+        if ((l_CollisionFlags & CollisionFlags.Above) != 0 && m_VerticalSpeed > 0.0f)
+        {
+            m_VerticalSpeed = 0.0f;
+        }
+        if ((l_CollisionFlags & CollisionFlags.Below) != 0)
+        {
+            m_VerticalSpeed = 0.0f;
+            m_OnGround = true;
+        }
+        else
+        {
+            m_OnGround = false;
+        }
     }
     public float GetLife()
     {
