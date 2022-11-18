@@ -101,6 +101,7 @@ public class MarioPlayerController : MonoBehaviour
     public void AddCoin()
     {
         m_Coins++;
+        Debug.Log(m_Coins);
     }
 
     private void OnTriggerEnter(Collider other)
