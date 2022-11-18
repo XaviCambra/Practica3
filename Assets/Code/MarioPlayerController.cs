@@ -15,6 +15,8 @@ public class MarioPlayerController : MonoBehaviour
 
     Vector3 m_StartPosition;
     Quaternion m_StartRotation;
+
+    //public Transform m_CheckPoint;
     public float m_VerticalSpeed = 0.0f;
     public float m_JumpSpeed = 10.0f;
     bool m_OnGround = false;
@@ -29,6 +31,7 @@ public class MarioPlayerController : MonoBehaviour
     {
         m_StartPosition = transform.position;
         m_StartRotation = transform.rotation;
+        Debug.Log(m_StartPosition);
     }
 
     void Update()
@@ -110,6 +113,11 @@ public class MarioPlayerController : MonoBehaviour
         {
             m_OnGround = false;
         }
+
+        if(m_Life == 0)
+        {
+            RestartGame();
+        }
     }
     public float GetLife()
     {
@@ -135,6 +143,11 @@ public class MarioPlayerController : MonoBehaviour
         else if(other.tag == "coinItem")
         {
             other.GetComponent<Item>().Pick(this);
+        }
+        else if(other.tag == "checkpoint")
+        {
+            m_StartPosition = other.transform.position;
+            Debug.Log(m_StartPosition);
         }
         else if(other.tag == "deadZone")
         {
