@@ -146,7 +146,7 @@ public class MarioPlayerController : MonoBehaviour
         }
         else if(other.tag == "checkpoint")
         {
-            m_StartPosition = other.transform.position;
+            m_StartPosition = other.GetComponent<Checkpoint>().GetStartPointPosition();
             Debug.Log(m_StartPosition);
         }
         else if(other.tag == "deadZone")
