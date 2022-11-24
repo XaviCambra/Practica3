@@ -3,6 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //mover a otro script
+public class EventConsumer : MonoBehaviour
+{
+    public void Step(string FootName)
+    {
+        Debug.LogFormat("Step with foot " + FootName);
+    }
+
+    public void PunchSound1(AnimationEvent animationEvent)
+    {
+        string l_StringParameter = animationEvent.stringParameter;
+        float l_FloatParameter = animationEvent.floatParameter;
+        int l_IntParameter = animationEvent.intParameter;
+        Object l_ObjectParameter = animationEvent.objectReferenceParameter;
+    }
+}
 public interface IRestartGameElement
 {
     void RestartGame();
@@ -42,9 +57,12 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public Collider m_KickCollider;
     bool m_IsPunchEnabled = false;
 
-
+    [Header("Elevator")]
     public float m_ElevatorDotAngle = 0.95f;
     Collider m_CurrentElevatorCollider = null;
+
+    [Header("Bridge")]
+    public float m_BridgeForce = 5.0f;
 
     private void Awake()
     {
@@ -306,5 +324,11 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         else if (m_CurrentComboPunch == TPunchType.KICK)
             SetComboPunch(TPunchType.RIGHT_HAND);
     }
-    
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.tag == "Bridge")
+            hit.gameObject.GetComponent<Rigidbody>().AddForceAtPosition(-hit.normal * m_BridgeForce, hit.point);
+    }
+
 }
