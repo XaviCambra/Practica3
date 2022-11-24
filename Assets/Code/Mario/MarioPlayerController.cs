@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class MarioPlayerController : MonoBehaviour
 {
+    public enum TPunchType
+    {
+        RIGHT_HAND = 0,
+        LEFT_HAND,
+        KICK
+    }
+    
     Animator m_Animator;
     CharacterController m_CharacterController;
     public CameraController m_Camera;
@@ -21,6 +28,12 @@ public class MarioPlayerController : MonoBehaviour
     public float m_JumpSpeed = 10.0f;
     bool m_OnGround = false;
 
+    [Header ("Punch")]
+    public Collider m_LeftHandCollider;
+    public Collider m_RightHandCollider;
+    public Collider m_KickCollider;
+
+
     private void Awake()
     {
         m_Animator = GetComponent<Animator>();
@@ -32,6 +45,19 @@ public class MarioPlayerController : MonoBehaviour
         m_StartPosition = transform.position;
         m_StartRotation = transform.rotation;
         Debug.Log(m_StartPosition);
+        m_LeftHandCollider.gameObject.SetActive(false);
+        m_RightHandCollider.gameObject.SetActive(false);
+        m_KickCollider.gameObject.SetActive(false);
+    }
+
+    public void SetPunchActive(TPunchType PunchType, bool Active)
+    {
+        if (PunchType == TPunchType.RIGHT_HAND)
+            m_RightHandCollider.gameObject.SetActive(Active);
+        else if (PunchType == TPunchType.LEFT_HAND)
+            m_LeftHandCollider.gameObject.SetActive(Active);
+        else if (PunchType == TPunchType.KICK)
+            m_KickCollider.gameObject.SetActive(Active);
     }
 
     void Update()
