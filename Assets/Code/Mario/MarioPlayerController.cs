@@ -43,6 +43,9 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     bool m_IsPunchEnabled = false;
 
 
+    public float m_ElevatorDotAngle = 0.95f;
+    Collider m_CurrentElevatorCollider = null;
+
     private void Awake()
     {
         m_Animator = GetComponent<Animator>();
@@ -160,6 +163,15 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             RestartGame();
         }
     }
+
+    private void LateUpdate()
+    {
+        if(m_CurrentElevatorCollider!= null)
+        {
+            Vector3 l_EulerRotation = transform.rotation.eulerAngles;
+            transform.rotation = Quaternion.Euler(0.0f, l_EulerRotation.y, 0.0f);
+        }
+    }
     public float GetLife()
     {
         return m_Life;
@@ -194,7 +206,47 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         {
             Kill();
         }
+        if(other.tag == "Elevator" && CanAttachToElevator(other))
+        {
+            AttachToElevator(other);
+        }
     }
+    private void OnTriggerExit(Collider other)
+    {
+        if(other.tag == "Elevator" && other == m_CurrentElevatorCollider)
+        {
+            DetachElevator();
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if(other.tag == "Elevator")
+        {
+            if (m_CurrentElevatorCollider != null && Vector3.Dot(other.transform.up, Vector3.up) < m_ElevatorDotAngle)
+                DetachElevator();
+            if (CanAttachToElevator(other))
+                AttachToElevator(other);
+        }
+    }
+
+    bool CanAttachToElevator(Collider other)
+    {
+        return m_CurrentElevatorCollider == null && Vector3.Dot(other.transform.up, Vector3.up) >= m_ElevatorDotAngle;
+    }
+
+    void AttachToElevator(Collider other)
+    {
+        transform.SetParent(other.transform);
+        m_CurrentElevatorCollider = other;
+    }
+
+    void DetachElevator()
+    {
+        transform.SetParent(null);
+        m_CurrentElevatorCollider = null;
+    }
+
     void Kill()
     {
         m_Life = 0.0f;
@@ -254,4 +306,5 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         else if (m_CurrentComboPunch == TPunchType.KICK)
             SetComboPunch(TPunchType.RIGHT_HAND);
     }
+    
 }
