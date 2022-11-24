@@ -23,17 +23,20 @@ public class PunchBehaviour : StateMachineBehaviour
     {
         if (!m_PunchActive && stateInfo.normalizedTime >= m_StartPctTime && stateInfo.normalizedTime <= m_EndPctTime)
         {
-            m_MarioPlayerController.SetPunchActive(m_PunchActive, true);
+            m_MarioPlayerController.SetPunchActive(m_PunchType, true);
             m_PunchActive = true;
         }
         else if (m_PunchActive && stateInfo.normalizedTime > m_EndPctTime)
-            m_MarioPlayerController.SetPunchActive(m_PunchActive, false);
+        {
+            m_MarioPlayerController.SetPunchActive(m_PunchType, false);
+            m_PunchActive = false;
+        }
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-
+        m_MarioPlayerController.SetPunchActive(m_PunchType, false);
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

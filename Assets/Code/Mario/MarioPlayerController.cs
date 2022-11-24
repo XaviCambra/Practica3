@@ -28,7 +28,8 @@ public class MarioPlayerController : MonoBehaviour
     public float m_JumpSpeed = 10.0f;
     bool m_OnGround = false;
 
-    [Header ("Punch")]
+    [Header("Punch")]
+    public float m_ComboPunchTime = 2.5f;
     public Collider m_LeftHandCollider;
     public Collider m_RightHandCollider;
     public Collider m_KickCollider;
