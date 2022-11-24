@@ -2,7 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MarioPlayerController : MonoBehaviour
+//mover a otro script
+public interface IRestartGameElement
+{
+    void RestartGame();
+}
+public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 {
     public enum TPunchType
     {
@@ -53,6 +58,8 @@ public class MarioPlayerController : MonoBehaviour
         m_LeftHandCollider.gameObject.SetActive(false);
         m_RightHandCollider.gameObject.SetActive(false);
         m_KickCollider.gameObject.SetActive(false);
+        GameController.GetGameController().AddRestartGameElement(this);
+        GameController.GetGameController().SetPlayer(this);
     }
 
     public void SetPunchActive(TPunchType PunchType, bool Active)
@@ -193,6 +200,7 @@ public class MarioPlayerController : MonoBehaviour
         m_Life = 0.0f;
         RestartGame();
     }
+
     public void RestartGame()
     {
         m_Life = 8.0f;
