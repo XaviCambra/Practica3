@@ -8,6 +8,7 @@ TagManager:
   - coinItem
   - deadZone
   - checkpoint
+  - Bridge
   layers:
   - Default
   - TransparentFX
