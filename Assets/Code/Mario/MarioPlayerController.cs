@@ -290,7 +290,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         m_ComboPunchCurrentTime = Time.time;
         m_IsPunchEnabled = true;
         if (m_CurrentComboPunch == TPunchType.RIGHT_HAND)
-            m_Animator.SetTrigger("PunchRight and");
+            m_Animator.SetTrigger("PunchRightHand");
         else if (m_CurrentComboPunch == TPunchType.LEFT_HAND)
             m_Animator.SetTrigger("PunchLeftHand");
         else if (m_CurrentComboPunch == TPunchType.KICK)
