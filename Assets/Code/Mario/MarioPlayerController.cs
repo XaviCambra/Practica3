@@ -47,6 +47,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public float m_VerticalSpeed = 0.0f;
     public float m_JumpSpeed = 10.0f;
     bool m_OnGround = false;
+    float m_timeGrounded;
 
     [Header("Punch")]
     public float m_ComboPunchTime = 2.5f;
@@ -126,6 +127,10 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             l_HasMovement = true;
             l_Movement += l_RightCamera;
         }
+        if (Input.GetKeyDown(KeyCode.Space) && m_OnGround)
+        {
+            m_VerticalSpeed = m_JumpSpeed;
+        }
         l_Movement.Normalize();
 
         float l_MovementSpeed = 0.0f;
@@ -170,10 +175,15 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         {
             m_VerticalSpeed = 0.0f;
             m_OnGround = true;
+            m_timeGrounded = 0;
+
         }
         else
         {
-            m_OnGround = false;
+            if (m_timeGrounded > 0.05f)
+                m_OnGround = false;
+            else
+                m_timeGrounded += Time.deltaTime;
         }
 
         if(m_Life == 0)

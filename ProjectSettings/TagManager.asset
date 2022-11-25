@@ -9,6 +9,7 @@ TagManager:
   - deadZone
   - checkpoint
   - Bridge
+  - Elevator
   layers:
   - Default
   - TransparentFX
