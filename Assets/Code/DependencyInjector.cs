@@ -9,7 +9,6 @@ public class DependencyInjector
     {
         if (!dependencies.ContainsKey(typeof(T)))
         {
-            Debug.LogError("Cannot find: " + typeof(T).ToString() +”.);
             return default(T);
         }
         return (T)dependencies[typeof(T)];
