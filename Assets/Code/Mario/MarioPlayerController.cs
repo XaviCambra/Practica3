@@ -243,6 +243,10 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         {
             AttachToElevator(other);
         }
+        if(other.tag == "Coin")
+        {
+            other.GetComponent<Coin>().Pick();
+        }
     }
     private void OnTriggerExit(Collider other)
     {
