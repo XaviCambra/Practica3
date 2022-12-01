@@ -25,9 +25,17 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     //public Transform m_CheckPoint;
     public float m_VerticalSpeed = 0.0f;
-    public float m_JumpSpeed = 10.0f;
-    bool m_OnGround = false;
+
+    [Header("Jump")]
+    public float m_JumpSpeed = 6.0f;
+    public float m_ExtraGravity;
+    int m_NumJumps = 0;
+    public bool m_OnGround = false;
     float m_timeGrounded;
+    float m_TimeOnGround;
+
+    public float m_KillerJumpSpeed = 5.0f;
+    public float m_MaxAngleAllowedToKillGoomba = 60.0f;
 
     [Header("Health")]
     public float m_MaxLife = 8.0f;
@@ -49,6 +57,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     [Header("Bridge")]
     public float m_BridgeForce = 5.0f;
+
 
     private void Awake()
     {
@@ -114,8 +123,19 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         }
         if (Input.GetKeyDown(KeyCode.Space) && m_OnGround)
         {
-            m_VerticalSpeed = m_JumpSpeed;
+            if (m_NumJumps > 2 || m_TimeOnGround > 1.0f)
+            {
+                m_NumJumps = 0;
+            }
+            Debug.Log(m_NumJumps);
+
+            m_VerticalSpeed = m_JumpSpeed + (1.5f * m_NumJumps);
+            m_NumJumps++;
         }
+
+        m_TimeOnGround = m_OnGround ? m_TimeOnGround + Time.deltaTime : 0.0f;
+
+
         l_Movement.Normalize();
 
         float l_MovementSpeed = 0.0f;
@@ -147,7 +167,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         }
         m_CharacterController.Move(l_Movement);
 
-        m_VerticalSpeed = m_VerticalSpeed + Physics.gravity.y * Time.deltaTime;
+        m_VerticalSpeed = m_VerticalSpeed + (Mathf.Abs(m_ExtraGravity)*-1 + Physics.gravity.y) * Time.deltaTime;
         l_Movement.y = m_VerticalSpeed * Time.deltaTime;
 
         CollisionFlags l_CollisionFlags = m_CharacterController.Move(l_Movement);
@@ -327,6 +347,23 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     {
         if (hit.gameObject.tag == "Bridge")
             hit.gameObject.GetComponent<Rigidbody>().AddForceAtPosition(-hit.normal * m_BridgeForce, hit.point);
+        else if (hit.gameObject.tag == "Goomba")
+        {
+            if (CanKillGoomba(hit.normal))
+            {
+                hit.gameObject.GetComponent<Goomba>().Kill();
+                JumpOverEnemy();
+            }
+        }
+    }
+
+    bool CanKillGoomba(Vector3 Normal)
+    {
+        return Vector3.Dot(Normal, Vector3.up) >= Mathf.Cos(m_MaxAngleAllowedToKillGoomba * Mathf.Deg2Rad);
+    }
+    void JumpOverEnemy()
+    {
+        m_VerticalSpeed = m_KillerJumpSpeed;
     }
 
 }
