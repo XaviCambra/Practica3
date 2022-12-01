@@ -1,27 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-//mover a otro script
-public class EventConsumer : MonoBehaviour
-{
-    public void Step(string FootName)
-    {
-        Debug.LogFormat("Step with foot " + FootName);
-    }
-
-    public void PunchSound1(AnimationEvent animationEvent)
-    {
-        string l_StringParameter = animationEvent.stringParameter;
-        float l_FloatParameter = animationEvent.floatParameter;
-        int l_IntParameter = animationEvent.intParameter;
-        Object l_ObjectParameter = animationEvent.objectReferenceParameter;
-    }
-}
-public interface IRestartGameElement
-{
-    void RestartGame();
-}
 public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 {
     public enum TPunchType
@@ -37,7 +18,6 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public float m_LerpRotationPct = 0.5f;
     public float m_WalkSpeed = 2.5f;
     public float m_RunSpeed= 6.5f;
-    public float m_Life = 8.0f;
     public float m_Coins = 0.0f;
 
     Vector3 m_StartPosition;
@@ -48,6 +28,11 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public float m_JumpSpeed = 10.0f;
     bool m_OnGround = false;
     float m_timeGrounded;
+
+    [Header("Health")]
+    public float m_MaxLife = 8.0f;
+    public float m_Life = 8.0f;
+    public Image m_LifeImage;
 
     [Header("Punch")]
     public float m_ComboPunchTime = 2.5f;
@@ -293,6 +278,9 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     void Hit()
     {
         m_Life--;
+
+        m_LifeImage.fillAmount = m_Life / m_MaxLife;
+
         if(m_Life <= 0)
         {
             RestartGame();
