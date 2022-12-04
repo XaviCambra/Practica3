@@ -39,7 +39,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
         }
         else if (m_CurrentState == TStates.ATTACK)
         {
-            
+            //set path o follow path segun el m_AttackPath
         }
     }
     public void Kill()
