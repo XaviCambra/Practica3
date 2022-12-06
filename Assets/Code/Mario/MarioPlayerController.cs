@@ -321,7 +321,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         }
         else
         {
-            //enseñar game over screen
+            m_GameOver.Setup();
         }
     }
 
@@ -383,6 +383,10 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             {
                 hit.gameObject.GetComponent<Goomba>().Kill();
                 JumpOverEnemy();
+            }
+            else
+            {
+                Hit();
             }
         }
     }
