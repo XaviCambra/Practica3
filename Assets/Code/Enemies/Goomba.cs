@@ -11,6 +11,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     public Transform m_Mario;
     NavMeshPath m_AttackPath;
     public float m_Speed = 5.0f;
+    CharacterController m_CharacterController;
 
     public enum TStates
     {
@@ -35,11 +36,11 @@ public class Goomba : MonoBehaviour, IRestartGameElement
             m_CurrentState = TStates.ALERT;
         if(m_CurrentState == TStates.ALERT)
         {
-            StartCoroutine(Asustao());
+            StartCoroutine(Surprise());
         }
         else if (m_CurrentState == TStates.ATTACK)
         {
-            //set path o follow path segun el m_AttackPath
+            
         }
     }
     public void Kill()
@@ -53,7 +54,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
         gameObject.SetActive(false);
 
     }
-    IEnumerator Asustao()
+    IEnumerator Surprise()
     {
         yield return new WaitForSeconds(m_Alert);
         NavMesh.CalculatePath(transform.position, m_Mario.position, NavMesh.AllAreas, m_AttackPath);
