@@ -19,6 +19,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public float m_WalkSpeed = 2.5f;
     public float m_RunSpeed= 6.5f;
     public float m_Coins = 0.0f;
+    public Text m_CoinCount;
 
     Vector3 m_StartPosition;
     Quaternion m_StartRotation;
@@ -226,6 +227,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public void AddCoin()
     {
         m_Coins++;
+        m_CoinCount.text = m_Coins.ToString();
         Debug.Log(m_Coins);
     }
 
