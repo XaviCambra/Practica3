@@ -242,6 +242,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         else if(other.tag == "coinItem")
         {
             other.GetComponent<Item>().Pick(this);
+            AddCoin();
         }
         else if(other.tag == "checkpoint")
         {
