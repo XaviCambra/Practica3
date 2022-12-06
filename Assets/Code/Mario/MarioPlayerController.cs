@@ -25,6 +25,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     //public Transform m_CheckPoint;
     public float m_VerticalSpeed = 0.0f;
+    public GameOver m_GameOver;
 
     [Header("Jump")]
     public float m_JumpSpeed = 6.0f;
@@ -39,8 +40,10 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     [Header("Health")]
     public float m_MaxLife = 8.0f;
-    public float m_Life = 8.0f;
+    public float m_Life;
     public Image m_LifeImage;
+    public float m_MaxContinuation = 3.0f;
+    public float m_Continuation;
 
     [Header("Punch")]
     public float m_ComboPunchTime = 2.5f;
@@ -67,6 +70,8 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     void Start()
     {
+        m_Continuation = m_MaxContinuation;
+        m_Life = m_MaxLife;
         m_StartPosition = transform.position;
         m_StartRotation = transform.rotation;
         Debug.Log(m_StartPosition);
@@ -191,9 +196,13 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
                 m_timeGrounded += Time.deltaTime;
         }
 
-        if(m_Life == 0)
+        if(m_Life == 0 && m_Continuation > 0)
         {
-            RestartGame();
+            GameController.GetGameController().RestartGame();
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            m_GameOver.Setup();
         }
     }
 
@@ -219,6 +228,8 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         m_Coins++;
         Debug.Log(m_Coins);
     }
+
+
 
     private void OnTriggerEnter(Collider other)
     {
@@ -287,16 +298,31 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     void Kill()
     {
         m_Life = 0.0f;
-        RestartGame();
+        m_Continuation--;
+        if (m_Continuation > 0)
+        {
+            RestartGame();
+        }
+        else if (m_Continuation == 0)
+        {
+            m_GameOver.Setup();
+        }
     }
 
     public void RestartGame()
     {
-        m_Life = 8.0f;
-        m_CharacterController.enabled = false;
-        transform.position = m_StartPosition;
-        transform.rotation = m_StartRotation;
-        m_CharacterController.enabled = true;
+        if(m_Continuation > 0)
+        {
+            m_Life = 8.0f;
+            m_CharacterController.enabled = false;
+            transform.position = m_StartPosition;
+            transform.rotation = m_StartRotation;
+            m_CharacterController.enabled = true;
+        }
+        else
+        {
+            //enseñar game over screen
+        }
     }
 
     void Hit()
