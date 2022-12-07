@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 8c94582b59691654d876f0b84dfc0995, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -260,7 +260,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -2571,6 +2571,7 @@ MonoBehaviour:
   m_RunSpeed: 10
   m_Coins: 0
   m_CoinCount: {fileID: 1772364447}
+  m_ContinuationCount: {fileID: 103242671}
   m_Hud: {fileID: 395613058}
   m_VerticalSpeed: 0
   m_GameOver: {fileID: 1416011482}
@@ -3000,6 +3001,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6b1af9ba13544148b691e4f6f097635, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameIsOver: 0
 --- !u!1 &1448677404
 GameObject:
   m_ObjectHideFlags: 0

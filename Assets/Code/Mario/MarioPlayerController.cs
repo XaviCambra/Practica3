@@ -20,6 +20,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public float m_RunSpeed= 6.5f;
     public float m_Coins = 0.0f;
     public Text m_CoinCount;
+    public Text m_ContinuationCount;
     public HUD m_Hud;
 
     Vector3 m_StartPosition;
@@ -50,7 +51,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public float m_Life;
     public Image m_LifeImage;
     public float m_MaxContinuation = 3.0f;
-    public float m_Continuation;
+    public float m_Continuation = 3.0f;
     bool m_IDied;
 
     [Header("Punch")]
@@ -373,9 +374,11 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     void Kill()
     {
+        m_Animator.SetBool("OnDead", true);
         m_Hud.ActionDone();
         m_Life = 0.0f;
         m_Continuation--;
+        m_ContinuationCount.text = m_Continuation.ToString();
         m_IDied = true;
         m_GameOver.Setup();
     }
@@ -388,6 +391,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             m_LifeImage.fillAmount = m_Life / m_MaxLife;
             m_Hud.ActionDone();
             m_CharacterController.enabled = false;
+            m_Animator.SetBool("OnDead", false);
             transform.position = m_StartPosition;
             transform.rotation = m_StartRotation;
             m_CharacterController.enabled = true;
@@ -405,6 +409,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     void Hit()
     {
+        m_Animator.SetTrigger("OnHit");
         m_Hud.ActionDone();
         m_Life--;
 
