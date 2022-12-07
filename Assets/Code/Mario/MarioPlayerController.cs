@@ -181,6 +181,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Space) && m_OnGround)
         {
+            m_Animator.SetTrigger("JumpLong");
             m_VerticalSpeed = m_JumpSpeed * 1.2f;
             m_Impulse = 15;
             l_Movement = m_LookAtDirection;
@@ -192,9 +193,11 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             {
                 m_NumJumps = 0;
             }
-
+            if (m_NumJumps == 0) m_Animator.SetTrigger("Jump");
+            else if (m_NumJumps == 1) m_Animator.SetTrigger("JumpDouble");
+            else if (m_NumJumps == 2) m_Animator.SetTrigger("JumpTriple");
             l_Movement = m_LookAtDirection;
-            m_VerticalSpeed = m_JumpSpeed + (1.5f * m_NumJumps);
+            m_VerticalSpeed = m_JumpSpeed + (2f * m_NumJumps);
             m_NumJumps++;
             m_OnGround = false;
         }
@@ -229,7 +232,9 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
                 m_timeGrounded += Time.deltaTime;
         }
 
-        if(m_Life == 0 && m_Continuation > 0)
+        m_Animator.SetBool("OnGround", m_OnGround);
+
+        if (m_Life == 0 && m_Continuation > 0)
         {
             GameController.GetGameController().RestartGame();
         }
