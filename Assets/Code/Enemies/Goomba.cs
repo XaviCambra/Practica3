@@ -21,6 +21,8 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     public float m_EyesPlayerHeight;
     public float m_SafeDistance = 2.0f;
 
+    float m_TimeOnAlert = 0.0f;
+
     public List<Transform> m_PatrolTargets;
     int m_CurrentPatrolTargetId = 0;
 
@@ -49,6 +51,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
 
     private void Update()
     {
+        Debug.Log(m_CurrentState);
         switch (m_CurrentState)
         {
             case TStates.PATROL:
@@ -75,22 +78,37 @@ public class Goomba : MonoBehaviour, IRestartGameElement
         if (SeesPlayer())
         {
             m_NavMeshAgent.isStopped = true;
-            m_CurrentState = TStates.ALERT;
+            SetAlertState();
         }
         if (PatrolTargetPositionArrived())
         {
             MoveToNextPatrolPosition();
         }
     }
+
+    void SetAlertState()
+    {
+        m_TimeOnAlert = 0;
+        m_CurrentState = TStates.ALERT;
+    }
+
     void UpdateAlertState()
     {
-        StartCoroutine(Surprise());
+        if(m_TimeOnAlert >= m_Alert)
+        {
+            m_CurrentState = TStates.ATTACK;
+            return;
+        }
+        m_PlayerPosition = GameController.GetGameController().GetPlayer().transform.position;
+        transform.LookAt(m_PlayerPosition);
+        m_TimeOnAlert += Time.deltaTime;
     }
     void UpdateAttackState()
     {
-        OnAttack();
-        if (!SeesPlayer())
+        transform.position = Vector3.MoveTowards(transform.position, m_PlayerPosition, m_NavMeshAgent.speed * Time.deltaTime);
+        if (transform.position == m_PlayerPosition)
         {
+            m_NavMeshAgent.isStopped = true;
             SetPatrolState();
         }
     }
@@ -106,25 +124,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
         gameObject.SetActive(false);
 
     }
-    IEnumerator Surprise()
-    {
-        yield return new WaitForSeconds(m_Alert);
-        m_PlayerPosition = GameController.GetGameController().GetPlayer().transform.position;
-        m_CurrentState = TStates.ATTACK;
-        //animacion de goomba saltando
-        
-    }
-    public void OnAttack()
-    {
-        transform.LookAt(m_PlayerPosition);
-        transform.position = Vector3.MoveTowards(transform.position, m_PlayerPosition, m_NavMeshAgent.speed * Time.deltaTime);
-        if (transform.position == m_PlayerPosition)
-        {
-            m_NavMeshAgent.isStopped = true;
-            m_CurrentState = TStates.ALERT;
-        }
-        
-    }
+
     public void RestartGame()
     {
         gameObject.SetActive(true);
@@ -152,6 +152,11 @@ public class Goomba : MonoBehaviour, IRestartGameElement
         l_ForwardXZ.y = 0.0f;
         l_ForwardXZ.Normalize();
 
+        if (Vector3.Distance(l_playerPosition, transform.position) > m_SightDistance)
+        {
+            return false;
+        }
+
         Vector3 l_EyesPosition = transform.position + Vector3.up * m_EyesHeight;
         Vector3 l_PlayerEyesPosition = l_playerPosition + Vector3.up * m_EyesPlayerHeight;
         Vector3 l_Direction = l_PlayerEyesPosition - l_EyesPosition;
@@ -161,7 +166,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
 
 
         Ray l_Ray = new Ray(l_EyesPosition, l_Direction);
-        
+
         
         return Vector3.Dot(l_ForwardXZ, l_DirectionToPlayerXZ) > Mathf.Cos(m_VisualConeAngle * Mathf.Deg2Rad / 2.0f) && !Physics.Raycast(l_Ray, l_Lenght, m_SightLayerMask.value);
     }
