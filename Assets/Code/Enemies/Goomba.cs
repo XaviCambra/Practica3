@@ -19,9 +19,12 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     public LayerMask m_SightLayerMask;
     public float m_SightDistance = 8.0f;
     public float m_EyesPlayerHeight;
+    public float m_SafeDistance = 2.0f;
 
     public List<Transform> m_PatrolTargets;
     int m_CurrentPatrolTargetId = 0;
+
+    Vector3 m_PlayerPosition;
 
     public enum TStates
     {
@@ -78,6 +81,10 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     void UpdateAttackState()
     {
         OnAttack();
+        if (!SeesPlayer())
+        {
+            m_CurrentState = TStates.PATROL;
+        }
     }
 
     public void Kill()
@@ -94,19 +101,19 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     IEnumerator Surprise()
     {
         yield return new WaitForSeconds(m_Alert);
+        m_PlayerPosition = GameController.GetGameController().GetPlayer().transform.position;
         m_CurrentState = TStates.ATTACK;
         //animacion de goomba saltando
         
     }
     public void OnAttack()
     {
-        Vector3 l_playerPosition = GameController.GetGameController().GetPlayer().transform.position;
-        Vector3 l_dronePosition = transform.position;
-
-        float distance = Vector3.Distance(l_playerPosition, l_dronePosition);
-        
-        transform.LookAt(l_playerPosition);
-        transform.position = Vector3.MoveTowards(l_dronePosition, l_playerPosition, m_NavMeshAgent.speed * Time.deltaTime);
+        transform.LookAt(m_PlayerPosition);
+        transform.position = Vector3.MoveTowards(transform.position, m_PlayerPosition, m_NavMeshAgent.speed * Time.deltaTime);
+        if (transform.position == m_PlayerPosition)
+        {
+            m_NavMeshAgent.isStopped = true;
+        }
         
     }
     public void RestartGame()
