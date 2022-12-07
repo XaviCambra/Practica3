@@ -3558,6 +3558,7 @@ MonoBehaviour:
   m_JumpSpeed: 6
   m_ExtraGravity: 3
   m_MaxTimeSided: 2
+  jumpParticles: {fileID: 2095255472}
   m_KillerJumpSpeed: 5
   m_MaxAngleAllowedToKillGoomba: 60
   m_MaxLife: 8
@@ -5748,7 +5749,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 0
+  moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
   randomSeed: 0
