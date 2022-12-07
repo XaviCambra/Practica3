@@ -51,6 +51,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public Image m_LifeImage;
     public float m_MaxContinuation = 3.0f;
     public float m_Continuation;
+    bool m_IDied;
 
     [Header("Punch")]
     public float m_ComboPunchTime = 2.5f;
@@ -102,6 +103,11 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     void Update()
     {
+        if (m_IDied)
+        {
+            return;
+        }
+
         float l_Speed = 0.0f;
 
         Vector3 l_ForwardCamera = m_Camera.transform.forward;
@@ -150,7 +156,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         }
         if (Input.GetKeyDown(KeyCode.P))
         {
-            m_GameOver.Setup();
+            Hit();
         }
 
 
@@ -370,14 +376,8 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         m_Hud.ActionDone();
         m_Life = 0.0f;
         m_Continuation--;
-        if (m_Continuation > 0)
-        {
-            RestartGame();
-        }
-        else if (m_Continuation == 0)
-        {
-            m_GameOver.Setup();
-        }
+        m_IDied = true;
+        m_GameOver.Setup();
     }
 
     public void RestartGame()
@@ -385,6 +385,8 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         if(m_Continuation > 0)
         {
             m_Life = 8.0f;
+            m_LifeImage.fillAmount = m_Life / m_MaxLife;
+            m_Hud.ActionDone();
             m_CharacterController.enabled = false;
             transform.position = m_StartPosition;
             transform.rotation = m_StartRotation;
@@ -392,8 +394,13 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         }
         else
         {
-            m_GameOver.Setup();
+            m_GameOver.ReloadLevel();
         }
+    }
+
+    public void Revive()
+    {
+        m_IDied = false;
     }
 
     void Hit()
@@ -405,7 +412,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
         if(m_Life <= 0)
         {
-            RestartGame();
+            Kill();
         }
     }
     bool CanPunch()
@@ -472,4 +479,8 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         m_VerticalSpeed = m_KillerJumpSpeed;
     }
 
+    public bool MarioIsDead()
+    {
+        return m_IDied;
+    }
 }
