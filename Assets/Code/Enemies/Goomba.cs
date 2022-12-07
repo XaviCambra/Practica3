@@ -51,7 +51,6 @@ public class Goomba : MonoBehaviour, IRestartGameElement
 
     private void Update()
     {
-        Debug.Log(m_CurrentState);
         switch (m_CurrentState)
         {
             case TStates.PATROL:

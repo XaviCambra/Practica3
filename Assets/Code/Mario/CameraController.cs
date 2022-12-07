@@ -55,7 +55,17 @@ public class CameraController : MonoBehaviour
     {
         #if UNITY_EDITOR
                 UpdateInputDebug();
-        #endif
+#endif
+
+        if (GameController.GetGameController().GetPlayer().MarioIsDead())
+        {
+            Cursor.lockState = CursorLockMode.None;
+            return;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
 
         float l_MouseX = Input.GetAxis("Mouse X");
         float l_MouseY = Input.GetAxis("Mouse Y");
