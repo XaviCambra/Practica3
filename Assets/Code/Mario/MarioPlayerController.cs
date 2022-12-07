@@ -314,6 +314,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public void AddLife()
     {
         m_Life++;
+        m_LifeImage.fillAmount = m_Life;
     }
 
     public void AddCoin()
