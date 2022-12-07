@@ -5,6 +5,7 @@ using UnityEngine.AI;
 
 public class Goomba : MonoBehaviour, IRestartGameElement
 {
+    Animator m_Animator;
     public float m_KillTime = 0.5f;
     public float m_KillScale = 0.2f;
     public float m_Alert = 2.0f;
@@ -40,6 +41,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     private void Awake()
     {
         m_NavMeshAgent = GetComponent<NavMeshAgent>();
+        m_Animator = GetComponent<Animator>();
     }
 
     private void Start()
@@ -70,6 +72,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     {
         MoveToNextPatrolPosition();
         m_NavMeshAgent.isStopped = false;
+        m_Animator.SetTrigger("Walk");
         m_CurrentState = TStates.PATROL;
     }
 
@@ -89,6 +92,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     void SetAlertState()
     {
         m_TimeOnAlert = 0;
+        m_Animator.SetTrigger("Alert");
         m_CurrentState = TStates.ALERT;
     }
 
