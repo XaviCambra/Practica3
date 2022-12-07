@@ -108,12 +108,20 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     }
     void UpdateAttackState()
     {
+        Vector3 l_playerPosition = GameController.GetGameController().GetPlayer().transform.position;
         transform.position = Vector3.MoveTowards(transform.position, m_PlayerPosition, m_NavMeshAgent.speed * Time.deltaTime);
+        Debug.Log(Vector3.Distance(l_playerPosition, transform.position));  
+        if(Vector3.Distance(l_playerPosition, transform.position) < 1)
+        {
+            GameController.GetGameController().GetPlayer().Hit();
+            GameController.GetGameController().GetPlayer().JumpOutOfGoomba(transform.position);
+        }
         if (transform.position == m_PlayerPosition)
         {
             m_NavMeshAgent.isStopped = true;
             SetPatrolState();
         }
+
     }
 
     public void Kill()

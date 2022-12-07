@@ -52,6 +52,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public Image m_LifeImage;
     public float m_MaxContinuation = 3.0f;
     public float m_Continuation = 3.0f;
+    public float m_InmunityTime = 0;
     bool m_IDied;
 
     [Header("Punch")]
@@ -104,6 +105,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     void Update()
     {
+        m_Animator.SetBool("OnDead", m_IDied);
         if (m_IDied)
         {
             return;
@@ -184,8 +186,6 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
                 }
             }
 
-            //m_Impulse = l_MovementSpeed > m_Impulse ? m_Impulse + m_RunSpeed * Time.deltaTime : m_Impulse - m_RunSpeed * Time.deltaTime;
-            //m_Impulse = Mathf.Clamp(m_Impulse, 0.0f, m_RunSpeed);
             m_Impulse = l_MovementSpeed;
         }
 
@@ -238,7 +238,6 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
         m_Animator.SetFloat("Speed", l_Speed);
 
-
         if (!m_OnSide)
             m_VerticalSpeed = m_VerticalSpeed + (Mathf.Abs(m_ExtraGravity) * -1 + Physics.gravity.y) * Time.deltaTime;
         else
@@ -278,6 +277,10 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         m_Animator.SetBool("OnGround", m_OnGround);
         m_Animator.SetBool("OnSide", m_OnSide);
 
+        if(m_InmunityTime > 0.0f)
+        {
+            m_InmunityTime -= Time.deltaTime;
+        }
         if (m_Life == 0 && m_Continuation > 0)
         {
             GameController.GetGameController().RestartGame();
@@ -374,7 +377,6 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     void Kill()
     {
-        m_Animator.SetBool("OnDead", true);
         m_Hud.ActionDone();
         m_Life = 0.0f;
         m_Continuation--;
@@ -391,7 +393,6 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             m_LifeImage.fillAmount = m_Life / m_MaxLife;
             m_Hud.ActionDone();
             m_CharacterController.enabled = false;
-            m_Animator.SetBool("OnDead", false);
             transform.position = m_StartPosition;
             transform.rotation = m_StartRotation;
             m_CharacterController.enabled = true;
@@ -407,8 +408,14 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         m_IDied = false;
     }
 
-    void Hit()
+    public void Hit()
     {
+        if(m_InmunityTime > 0)
+        {
+            return;
+        }
+
+        m_InmunityTime = 3;
         m_Animator.SetTrigger("OnHit");
         m_Hud.ActionDone();
         m_Life--;
@@ -420,6 +427,16 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             Kill();
         }
     }
+
+    public void JumpOutOfGoomba(Vector3 GoombaPosition)
+    {
+        Vector3 direction = gameObject.transform.position - GoombaPosition;
+        direction.Normalize();
+        m_CharacterController.Move(direction * 2);
+        m_VerticalSpeed = 3;
+        m_OnGround = false;
+    }
+
     bool CanPunch()
     {
         return !m_IsPunchEnabled;
