@@ -177,8 +177,9 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
                 }
             }
 
-            m_Impulse = l_MovementSpeed > m_Impulse ? m_Impulse + m_RunSpeed * Time.deltaTime : m_Impulse - m_RunSpeed * Time.deltaTime;
-            m_Impulse = Mathf.Clamp(m_Impulse, 0.0f, m_RunSpeed);
+            //m_Impulse = l_MovementSpeed > m_Impulse ? m_Impulse + m_RunSpeed * Time.deltaTime : m_Impulse - m_RunSpeed * Time.deltaTime;
+            //m_Impulse = Mathf.Clamp(m_Impulse, 0.0f, m_RunSpeed);
+            m_Impulse = l_MovementSpeed;
         }
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Space) && m_OnGround)
@@ -212,7 +213,19 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             m_NumJumps++;
             m_OnGround = false;
         }
-        
+
+        if (m_OnSide)
+        {
+            if (m_timeSided < m_MaxTimeSided)
+                m_timeSided += Time.deltaTime;
+            else
+            {
+                l_Movement = -m_LookAtDirection;
+                m_Impulse = 3;
+                m_VerticalSpeed = 0.5f;
+                m_OnSide = false;
+            }
+        }
 
         l_Movement = l_Movement * m_Impulse * Time.deltaTime;
 
@@ -228,7 +241,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
         CollisionFlags l_CollisionFlags = m_CharacterController.Move(l_Movement);
 
-        Debug.Log(m_OnSide);
+        Debug.Log(m_timeSided + " - " + m_MaxTimeSided);
 
         if ((l_CollisionFlags & CollisionFlags.Above) != 0 && m_VerticalSpeed > 0.0f)
         {
@@ -245,6 +258,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         {
             m_VerticalSpeed = 0.0f;
             m_OnGround = true;
+            m_OnSide = false;
             m_timeGrounded = 0;
         }
         else
@@ -254,13 +268,10 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             else
                 m_timeGrounded += Time.deltaTime;
 
-            if (m_timeSided < m_MaxTimeSided)
-                m_timeSided += Time.deltaTime;
-            else
-                m_OnSide = false;
         }
 
         m_Animator.SetBool("OnGround", m_OnGround);
+        m_Animator.SetBool("OnSide", m_OnSide);
 
         if (m_Life == 0 && m_Continuation > 0)
         {
@@ -290,7 +301,6 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     {
         m_Coins++;
         m_CoinCount.text = m_Coins.ToString();
-        Debug.Log(m_Coins);
     }
     private void OnTriggerEnter(Collider other)
     {
