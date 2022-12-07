@@ -5,20 +5,23 @@ using UnityEngine;
 
 public class HUD : MonoBehaviour
 {
-    public TextMeshProUGUI score;
+    Animator m_Animator;
+    public float m_Timer;
     private void Start()
     {
-        DependencyInjector.GetDependency<IScoreManager>()
-       .scoreChangedDelegate += updateScore;
+        m_Animator = GetComponent<Animator>();
+        m_Timer = 0f;
     }
-    private void OnDestroy()
+    private void Update()
     {
-        DependencyInjector.GetDependency<IScoreManager>()
-       .scoreChangedDelegate -= updateScore;
+        if ( m_Timer > 0f)
+        {
+            m_Timer -= Time.deltaTime;
+        }
+        m_Animator.SetBool("Enter", m_Timer > 0);
     }
-    public void updateScore(IScoreManager scoreManager)
+    public void ActionDone()
     {
-        score.text = "Score: " +
-       scoreManager.getPoints().ToString("0");
+        m_Timer = 3f;
     }
 }
