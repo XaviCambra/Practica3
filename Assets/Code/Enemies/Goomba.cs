@@ -33,7 +33,8 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     {
         PATROL,
         ALERT,
-        ATTACK
+        ATTACK,
+        DEAD
     }
 
     TStates m_CurrentState;
@@ -64,6 +65,9 @@ public class Goomba : MonoBehaviour, IRestartGameElement
             case TStates.ATTACK:
                 UpdateAttackState();
                 break;
+            case TStates.DEAD:
+                UpdateDeadState();
+                break;
         }
     }
 
@@ -86,6 +90,10 @@ public class Goomba : MonoBehaviour, IRestartGameElement
         {
             MoveToNextPatrolPosition();
         }
+    }
+    void UpdateDeadState()
+    {
+        m_NavMeshAgent.isStopped = true;
     }
 
     void SetAlertState()
@@ -127,6 +135,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
     public void Kill()
     {
         transform.localScale = new Vector3(1.0f, m_KillScale, 1.0f);
+        m_CurrentState = TStates.DEAD;
         StartCoroutine(Hide());
     }
     IEnumerator Hide()
