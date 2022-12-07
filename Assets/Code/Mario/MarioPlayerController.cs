@@ -42,6 +42,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     float m_TimeOnGround;
     float m_Impulse;
     Vector3 m_LookAtDirection;
+    public ParticleSystem jumpParticles;
 
     public float m_KillerJumpSpeed = 5.0f;
     public float m_MaxAngleAllowedToKillGoomba = 60.0f;
@@ -214,7 +215,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             if (m_NumJumps == 0) m_Animator.SetTrigger("Jump");
             else if (m_NumJumps == 1) m_Animator.SetTrigger("JumpDouble");
             else if (m_NumJumps == 2) m_Animator.SetTrigger("JumpTriple");
-
+            jumpParticles.Play();
             l_Movement = m_LookAtDirection;
             m_VerticalSpeed = m_JumpSpeed + (2f * m_NumJumps);
             m_NumJumps++;
