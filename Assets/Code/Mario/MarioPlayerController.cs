@@ -33,8 +33,11 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public float m_JumpSpeed = 6.0f;
     public float m_ExtraGravity;
     int m_NumJumps = 0;
-    public bool m_OnGround = false;
+    bool m_OnGround = false;
+    bool m_OnSide = false;
     float m_timeGrounded;
+    float m_timeSided;
+    public float m_MaxTimeSided;
     float m_TimeOnGround;
     float m_Impulse;
     Vector3 m_LookAtDirection;
@@ -109,27 +112,26 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         l_RightCamera.Normalize();
         bool l_HasMovement = false;
 
-        /* PLAYER INPUTS */
         Vector3 l_Movement = Vector3.zero;
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W) && !m_OnSide)
         {
             l_HasMovement = true;
             l_Movement = l_ForwardCamera;
             m_LookAtDirection = l_ForwardCamera;
         }
-        if (Input.GetKey(KeyCode.S))
+        if (Input.GetKey(KeyCode.S) && !m_OnSide)
         {
             l_HasMovement = true;
             l_Movement = -l_ForwardCamera;
             m_LookAtDirection = -l_ForwardCamera;
         }
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A) && !m_OnSide)
         {
             l_HasMovement = true;
             l_Movement -= l_RightCamera;
             m_LookAtDirection -= l_RightCamera;
         }
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.D) && !m_OnSide)
         {
             l_HasMovement = true;
             l_Movement += l_RightCamera;
@@ -139,8 +141,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         {
             l_Movement = m_CharacterController.velocity;
         }
-        
-        if (Input.GetMouseButtonDown(0) && CanPunch())
+        if (Input.GetMouseButtonDown(0) && CanPunch() && !m_OnSide)
         {
             if (MustRestartComboPunch())
                 SetComboPunch(TPunchType.RIGHT_HAND);
@@ -188,6 +189,14 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             l_Movement = m_LookAtDirection;
             m_OnGround = false;
         }
+        else if (Input.GetKeyDown(KeyCode.Space) && m_OnSide)
+        {
+            m_Animator.SetTrigger("JumpWall");
+            l_Movement = -m_LookAtDirection;
+            m_Impulse = 10;
+            m_VerticalSpeed = m_JumpSpeed + (2f * m_NumJumps);
+            m_OnSide = false;
+        }
         else if (Input.GetKeyDown(KeyCode.Space) && m_OnGround)
         {
             if (m_NumJumps > 2 || m_TimeOnGround > 0.5f)
@@ -197,33 +206,46 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             if (m_NumJumps == 0) m_Animator.SetTrigger("Jump");
             else if (m_NumJumps == 1) m_Animator.SetTrigger("JumpDouble");
             else if (m_NumJumps == 2) m_Animator.SetTrigger("JumpTriple");
+
             l_Movement = m_LookAtDirection;
             m_VerticalSpeed = m_JumpSpeed + (2f * m_NumJumps);
             m_NumJumps++;
             m_OnGround = false;
         }
+        
 
-        Debug.Log("l_Movement: " + l_Movement + " - m_Impulse " + m_Impulse);
         l_Movement = l_Movement * m_Impulse * Time.deltaTime;
-
 
         m_Animator.SetFloat("Speed", l_Speed);
 
-        m_VerticalSpeed = m_VerticalSpeed + (Mathf.Abs(m_ExtraGravity)*-1 + Physics.gravity.y) * Time.deltaTime;
+
+        if (!m_OnSide)
+            m_VerticalSpeed = m_VerticalSpeed + (Mathf.Abs(m_ExtraGravity) * -1 + Physics.gravity.y) * Time.deltaTime;
+        else
+            m_VerticalSpeed = 0;
+
         l_Movement.y = m_VerticalSpeed * Time.deltaTime;
 
         CollisionFlags l_CollisionFlags = m_CharacterController.Move(l_Movement);
+
+        Debug.Log(m_OnSide);
 
         if ((l_CollisionFlags & CollisionFlags.Above) != 0 && m_VerticalSpeed > 0.0f)
         {
             m_VerticalSpeed = 0.0f;
         }
-        if ((l_CollisionFlags & CollisionFlags.Below) != 0)
+        if ((l_CollisionFlags & CollisionFlags.Sides) != 0)
+        {
+            m_Animator.SetTrigger("Wall");
+            m_VerticalSpeed = 0.0f;
+            m_timeSided = 0;
+            m_OnSide = true;
+        }
+        else if ((l_CollisionFlags & CollisionFlags.Below) != 0)
         {
             m_VerticalSpeed = 0.0f;
             m_OnGround = true;
             m_timeGrounded = 0;
-
         }
         else
         {
@@ -231,6 +253,11 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
                 m_OnGround = false;
             else
                 m_timeGrounded += Time.deltaTime;
+
+            if (m_timeSided < m_MaxTimeSided)
+                m_timeSided += Time.deltaTime;
+            else
+                m_OnSide = false;
         }
 
         m_Animator.SetBool("OnGround", m_OnGround);
