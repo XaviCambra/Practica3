@@ -2482,8 +2482,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Camera: {fileID: 963194229}
   m_LerpRotationPct: 0.5
-  m_WalkSpeed: 1.5
-  m_RunSpeed: 5
+  m_WalkSpeed: 3
+  m_RunSpeed: 10
   m_Coins: 0
   m_CoinCount: {fileID: 1772364447}
   m_VerticalSpeed: 0

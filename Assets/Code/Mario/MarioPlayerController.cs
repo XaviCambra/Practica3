@@ -35,6 +35,8 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public bool m_OnGround = false;
     float m_timeGrounded;
     float m_TimeOnGround;
+    float m_Impulse;
+    Vector3 m_LookAtDirection;
 
     public float m_KillerJumpSpeed = 5.0f;
     public float m_MaxAngleAllowedToKillGoomba = 60.0f;
@@ -75,7 +77,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         m_Life = m_MaxLife;
         m_StartPosition = transform.position;
         m_StartRotation = transform.rotation;
-        Debug.Log(m_StartPosition);
+        m_LookAtDirection = m_Camera.transform.forward;
         m_ComboPunchCurrentTime = -m_ComboPunchTime;
         m_LeftHandCollider.gameObject.SetActive(false);
         m_RightHandCollider.gameObject.SetActive(false);
@@ -106,64 +108,37 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         l_RightCamera.Normalize();
         bool l_HasMovement = false;
 
+        /* PLAYER INPUTS */
         Vector3 l_Movement = Vector3.zero;
         if (Input.GetKey(KeyCode.W))
         {
             l_HasMovement = true;
             l_Movement = l_ForwardCamera;
+            m_LookAtDirection = l_ForwardCamera;
         }
         if (Input.GetKey(KeyCode.S))
         {
             l_HasMovement = true;
             l_Movement = -l_ForwardCamera;
+            m_LookAtDirection = -l_ForwardCamera;
         }
         if (Input.GetKey(KeyCode.A))
         {
             l_HasMovement = true;
             l_Movement -= l_RightCamera;
+            m_LookAtDirection -= l_RightCamera;
         }
         if (Input.GetKey(KeyCode.D))
         {
             l_HasMovement = true;
             l_Movement += l_RightCamera;
+            m_LookAtDirection += l_RightCamera;
         }
-        if (Input.GetKeyDown(KeyCode.Space) && m_OnGround)
+        if (!m_OnGround)
         {
-            if (m_NumJumps > 2 || m_TimeOnGround > 1.0f)
-            {
-                m_NumJumps = 0;
-            }
-            Debug.Log(m_NumJumps);
-
-            m_VerticalSpeed = m_JumpSpeed + (1.5f * m_NumJumps);
-            m_NumJumps++;
+            l_Movement = m_CharacterController.velocity;
         }
-
-        m_TimeOnGround = m_OnGround ? m_TimeOnGround + Time.deltaTime : 0.0f;
-
-
-        l_Movement.Normalize();
-
-        float l_MovementSpeed = 0.0f;
-
-        if (l_HasMovement)
-        {
-            Quaternion l_LookRotation = Quaternion.LookRotation(l_Movement);
-            transform.rotation = Quaternion.Lerp(transform.rotation, l_LookRotation, m_LerpRotationPct);
-
-            l_Speed = 0.5f;
-            l_MovementSpeed = m_WalkSpeed;
-
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                l_Speed = 1.0f;
-                l_MovementSpeed = m_RunSpeed;
-            }
-        }
-
-        l_Movement = l_Movement * l_MovementSpeed * Time.deltaTime;
-
-        m_Animator.SetFloat("Speed", l_Speed);
+        
         if (Input.GetMouseButtonDown(0) && CanPunch())
         {
             if (MustRestartComboPunch())
@@ -171,7 +146,64 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
             else
                 NextComboPunch();
         }
-        m_CharacterController.Move(l_Movement);
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            m_GameOver.Setup();
+        }
+
+
+        m_TimeOnGround = m_OnGround ? m_TimeOnGround + Time.deltaTime : 0.0f;
+
+        l_Movement.Normalize();
+
+        if (m_OnGround)
+        {
+            float l_MovementSpeed = 0;
+
+            if (l_HasMovement)
+            {
+                Quaternion l_LookRotation = Quaternion.LookRotation(l_Movement);
+                transform.rotation = Quaternion.Lerp(transform.rotation, l_LookRotation, m_LerpRotationPct);
+
+                l_Speed = 0.3f;
+                l_MovementSpeed = m_WalkSpeed;
+
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    l_Speed = 1.0f;
+                    l_MovementSpeed = m_RunSpeed;
+                }
+            }
+
+            m_Impulse = l_MovementSpeed > m_Impulse ? m_Impulse + m_RunSpeed * Time.deltaTime : m_Impulse - m_RunSpeed * Time.deltaTime;
+            m_Impulse = Mathf.Clamp(m_Impulse, 0.0f, m_RunSpeed);
+        }
+
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Space) && m_OnGround)
+        {
+            m_VerticalSpeed = m_JumpSpeed * 1.2f;
+            m_Impulse = 15;
+            l_Movement = m_LookAtDirection;
+            m_OnGround = false;
+        }
+        else if (Input.GetKeyDown(KeyCode.Space) && m_OnGround)
+        {
+            if (m_NumJumps > 2 || m_TimeOnGround > 0.5f)
+            {
+                m_NumJumps = 0;
+            }
+
+            l_Movement = m_LookAtDirection;
+            m_VerticalSpeed = m_JumpSpeed + (1.5f * m_NumJumps);
+            m_NumJumps++;
+            m_OnGround = false;
+        }
+
+        Debug.Log("l_Movement: " + l_Movement + " - m_Impulse " + m_Impulse);
+        l_Movement = l_Movement * m_Impulse * Time.deltaTime;
+
+
+        m_Animator.SetFloat("Speed", l_Speed);
 
         m_VerticalSpeed = m_VerticalSpeed + (Mathf.Abs(m_ExtraGravity)*-1 + Physics.gravity.y) * Time.deltaTime;
         l_Movement.y = m_VerticalSpeed * Time.deltaTime;
@@ -201,10 +233,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         {
             GameController.GetGameController().RestartGame();
         }
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            m_GameOver.Setup();
-        }
+        
     }
 
     private void LateUpdate()
@@ -247,7 +276,6 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         else if(other.tag == "checkpoint")
         {
             m_StartPosition = other.GetComponent<Checkpoint>().GetStartPointPosition();
-            Debug.Log(m_StartPosition);
         }
         else if(other.tag == "deadZone")
         {
