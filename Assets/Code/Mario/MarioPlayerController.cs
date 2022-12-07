@@ -20,6 +20,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public float m_RunSpeed= 6.5f;
     public float m_Coins = 0.0f;
     public Text m_CoinCount;
+    public HUD m_Hud;
 
     Vector3 m_StartPosition;
     Quaternion m_StartRotation;
@@ -264,19 +265,17 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
         m_CoinCount.text = m_Coins.ToString();
         Debug.Log(m_Coins);
     }
-
-
-
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == "healthItem")
         {
             other.GetComponent<Item>().Pick(this);
+            m_Hud.ActionDone();
         }
         else if(other.tag == "coinItem")
         {
             other.GetComponent<Item>().Pick(this);
-            AddCoin();
+            m_Hud.ActionDone();
         }
         else if(other.tag == "checkpoint")
         {
@@ -333,6 +332,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     void Kill()
     {
+        m_Hud.ActionDone();
         m_Life = 0.0f;
         m_Continuation--;
         if (m_Continuation > 0)
@@ -363,6 +363,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
     void Hit()
     {
+        m_Hud.ActionDone();
         m_Life--;
 
         m_LifeImage.fillAmount = m_Life / m_MaxLife;
