@@ -62,6 +62,14 @@ public class Goomba : MonoBehaviour, IRestartGameElement
                 break;
         }
     }
+
+    void SetPatrolState()
+    {
+        MoveToNextPatrolPosition();
+        m_NavMeshAgent.isStopped = false;
+        m_CurrentState = TStates.PATROL;
+    }
+
     void UpdatePatrolState()
     {
         if (SeesPlayer())
@@ -83,7 +91,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
         OnAttack();
         if (!SeesPlayer())
         {
-            m_CurrentState = TStates.PATROL;
+            SetPatrolState();
         }
     }
 
@@ -113,6 +121,7 @@ public class Goomba : MonoBehaviour, IRestartGameElement
         if (transform.position == m_PlayerPosition)
         {
             m_NavMeshAgent.isStopped = true;
+            m_CurrentState = TStates.ALERT;
         }
         
     }
