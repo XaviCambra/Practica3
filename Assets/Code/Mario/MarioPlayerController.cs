@@ -241,8 +241,6 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
 
         CollisionFlags l_CollisionFlags = m_CharacterController.Move(l_Movement);
 
-        Debug.Log(m_timeSided + " - " + m_MaxTimeSided);
-
         if ((l_CollisionFlags & CollisionFlags.Above) != 0 && m_VerticalSpeed > 0.0f)
         {
             m_VerticalSpeed = 0.0f;
