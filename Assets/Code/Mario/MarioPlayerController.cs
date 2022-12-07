@@ -18,6 +18,7 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
     public float m_LerpRotationPct = 0.5f;
     public float m_WalkSpeed = 2.5f;
     public float m_RunSpeed= 6.5f;
+    public ParticleSystem RunParticles;
     public float m_Coins = 0.0f;
     public Text m_CoinCount;
     public Text m_ContinuationCount;
@@ -184,7 +185,16 @@ public class MarioPlayerController : MonoBehaviour, IRestartGameElement
                 {
                     l_Speed = 1.0f;
                     l_MovementSpeed = m_RunSpeed;
+                    RunParticles.Play();
                 }
+                else
+                {
+                    RunParticles.Stop();
+                }
+            }
+            else
+            {
+                RunParticles.Stop();
             }
 
             m_Impulse = l_MovementSpeed;
